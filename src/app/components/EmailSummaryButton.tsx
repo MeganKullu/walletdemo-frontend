@@ -5,6 +5,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { FaEnvelope, FaSpinner } from 'react-icons/fa';
 import toast from 'react-hot-toast';
+import { user } from '../lib/api';
 
 export default function EmailSummaryButton() {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,12 +17,8 @@ export default function EmailSummaryButton() {
       setIsLoading(true);
       setMessage('');
       
-      const response = await axios.post('/api/user/email-transaction-summary', {}, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      
+      const response = await user.emailTransactionSummary();
+      console.log("Email Summary Response: ", response); 
       setMessageType('success');
       setMessage('Success! Your transaction summary has been sent to your email address.');
     } catch (error) {

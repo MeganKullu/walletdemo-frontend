@@ -3,6 +3,8 @@ import toast from 'react-hot-toast';
 
 const API_BASE_URL = 'https://steady-valery-megan123-feff4840.koyeb.app/api';
 
+
+
 const api = axios.create({
     baseURL: API_BASE_URL,
     headers: {
@@ -31,48 +33,34 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         // Check if error is due to 401 Unauthorized (expired token)
-        if (error.response && error.response.status === 401) {      
+        if (error.response && error.response.status === 401) {
             // Clear authentication data
             localStorage.removeItem('token');
             localStorage.removeItem('role');
-            
+
             // Show notification
             toast.error('Your session has expired. Please log in again.');
-            
+
             // Redirect to login page
             window.location.href = '/auth/login';
             return Promise.reject(error);
         }
-    
+
         return Promise.reject(error);
     }
 );
 
 export const auth = {
     login: async (email: string, password: string) => {
-        const response = await api.post('/auth/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, password }),
-        });
-        
-        const data = await response.data;
-        return { data, status: response.status };
-      },
+        const response = await api.post('/auth/login', { email, password });
+        return { data: response.data, status: response.status };
+    },
     register: async (name: string, email: string, password: string) => {
-        const response = await api.post('/auth/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ name, email, password }),
-        });
-        const data = await response.data;
-        return { data, status: response.status };
+        const response = await api.post('/auth/register', { name, email, password });
+        return { data: response.data, status: response.status };
     },
 };
+
 
 export const user = {
     setupPin: async (pin: string) => {
@@ -91,6 +79,10 @@ export const user = {
         const response = await api.get('/user/check-pin-status');
         return response.data;
     },
+    emailTransactionSummary: async () => {
+        const response = await api.post('/user/email-transaction-summary');
+        return response.data;
+    },
 };
 
 export const admin = {
@@ -106,7 +98,7 @@ export const admin = {
     getTransactionSummary: async () => {
         const response = await api.get('/admin/transactions-summary');
         return response.data;
-      }
+    }
 };
 
 export const wallet = {
