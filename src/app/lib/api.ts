@@ -9,6 +9,7 @@ const api = axios.create({
         'Content-Type': 'application/json',
     },
     withCredentials: false
+
 });
 
 // Request interceptor for API calls
@@ -49,7 +50,7 @@ api.interceptors.response.use(
 
 export const auth = {
     login: async (email: string, password: string) => {
-        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        const response = await api.post('/auth/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -57,18 +58,18 @@ export const auth = {
           body: JSON.stringify({ email, password }),
         });
         
-        const data = await response.json();
+        const data = await response.data;
         return { data, status: response.status };
       },
     register: async (name: string, email: string, password: string) => {
-        const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        const response = await api.post('/auth/register', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ name, email, password }),
         });
-        const data = await response.json();
+        const data = await response.data;
         return { data, status: response.status };
     },
 };
