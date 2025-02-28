@@ -1,7 +1,7 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-const API_BASE_URL = 'http://localhost:8085/api';
+const API_BASE_URL = 'https://steady-valery-megan123-feff4840.koyeb.app/api';
 
 const api = axios.create({
     baseURL: API_BASE_URL,

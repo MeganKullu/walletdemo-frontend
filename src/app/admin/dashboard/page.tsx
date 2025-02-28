@@ -64,7 +64,7 @@ function TransactionTable() {
                 const data = await admin.getAllTransactions();
                 setTransactions(data);
             } catch (error) {
-                console.error('Error fetching transactions:', error);
+                toast.error('An error occured please try again later');
             }
         };
 

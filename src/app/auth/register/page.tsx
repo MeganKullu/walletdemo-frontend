@@ -29,7 +29,6 @@ export default function Register() {
       router.push('/auth/pending-approval');
 
     } catch (error: any) {
-    console.log("error registration", error);
       toast.error(error.response?.data?.message || 'Registration failed');
     }
   };

@@ -16,35 +16,34 @@ export default function Login() {
         e.preventDefault();
         try {
             const { data, status } = await auth.login(formData.email, formData.password);
-            
-            console.log("Login response:", data, "Status:", status);
-            
+
             // Handle pending approval (403 status with approval info)
             if (status === 403 && data.error === "Account pending approval") {
-                toast.error('Your account is pending admin approval. You will be notified when approved.');
+                toast('Your account is pending admin approval. You will be notified when approved.', {
+                    icon: 'ℹ️',
+                });
                 router.push('/auth/pending-approval');
                 return;
             }
-            
+
             // Handle other errors
             if (status !== 200) {
                 toast.error(data.error || 'Login failed. Please check your credentials.');
                 return;
             }
-            
+
             // Normal login flow for approved users
             localStorage.setItem('token', data.token);
             const decodedToken: any = jwtDecode(data.token);
-    
+
             if (decodedToken.role === 'ADMIN') {
                 router.push('/admin/dashboard');
             } else {
                 router.push('/dashboard');
             }
-    
+
             toast.success('Login successful!');
         } catch (error: any) {
-            console.error("Login error:", error);
             toast.error('Login failed. Please check your credentials and try again.');
         }
     };

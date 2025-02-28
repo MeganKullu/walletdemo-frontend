@@ -29,7 +29,6 @@ export default function TransactionTable() {
         setTransactions(data);
         setError(null);
       } catch (error) {
-        console.error('Error fetching transactions:', error);
         toast.error('Something went wrong, please try again later');
       } finally {
         setLoading(false);
