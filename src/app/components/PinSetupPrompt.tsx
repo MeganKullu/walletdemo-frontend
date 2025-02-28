@@ -22,7 +22,6 @@ export default function PinSetupPrompt() {
         setNeedsPin(true);
       }
     } catch (error) {
-      console.error('Error checking PIN status:', error);
     } finally {
       setLoading(false);
     }

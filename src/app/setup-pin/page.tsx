@@ -31,7 +31,6 @@ export default function SetupPin() {
       toast.success('PIN set successfully');
       router.push('/dashboard');
     } catch (error) {
-      console.error('Error setting PIN:', error);
       toast.error('Failed to set PIN');
     } finally {
       setLoading(false);

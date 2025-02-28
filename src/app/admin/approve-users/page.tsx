@@ -23,10 +23,8 @@ export default function ApproveUsers() {
     const fetchPendingUsers = async () => {
         try {
             const response = await admin.getPendingUsers();
-            console.log("response for pending users", response.data);
             setPendingUsers(response.data);
         } catch (error) {
-            console.error("Error fetching pending users:", error);
             toast.error('Failed to fetch pending users');
         }
     };

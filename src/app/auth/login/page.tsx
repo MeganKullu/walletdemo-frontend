@@ -17,10 +17,8 @@ export default function Login() {
     try {
       const response = await auth.login(formData.email, formData.password);
       localStorage.setItem('token', response.token);
-      console.log("response", response);
-      // Decode token to check if admin
       const decodedToken: any = jwtDecode(response.token);
-      console.log("decodedToken", decodedToken.role);
+
       if (decodedToken.role === 'ADMIN') {
         router.push('/admin/dashboard');
       } else {

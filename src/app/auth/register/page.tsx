@@ -27,8 +27,9 @@ export default function Register() {
       await auth.register(formData.name, formData.email, formData.password);
       toast.success('Registration successful! Please wait for admin approval.');
       router.push('/auth/pending-approval');
+
     } catch (error: any) {
-      console.log("register error", error);
+    console.log("error registration", error);
       toast.error(error.response?.data?.message || 'Registration failed');
     }
   };

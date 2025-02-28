@@ -7,7 +7,7 @@ import Navigation from '@/app/components/Navigation';
 import { wallet, user } from '@/app/lib/api';
 import toast from 'react-hot-toast';
 import { debounce } from 'lodash';
-
+import EmailSummaryButton from '@/app/components/EmailSummaryButton';
 interface WalletInfo {
   balance: number;
   transactions: Array<{
@@ -56,7 +56,7 @@ export default function Dashboard() {
         router.push('/setup-pin');
       }
     } catch (error) {
-      console.error('Error checking PIN status:', error);
+      toast.error('An error occured');
     }
   };
 
@@ -65,7 +65,6 @@ export default function Dashboard() {
       const walletData = await wallet.getWalletInfo();
       setWalletInfo(walletData);
     } catch (error) {
-      console.error('Error fetching wallet info:', error);
       toast.error('Failed to fetch wallet information');
     }
   };
@@ -82,7 +81,7 @@ export default function Dashboard() {
       const results = await user.searchByEmail(email);
       setReceiverSuggestions(results);
     } catch (error) {
-      console.error('Error searching users:', error);
+      toast.error('Error searching users');
     } finally {
       setIsSearching(false);
     }
@@ -290,6 +289,7 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+          <EmailSummaryButton />
         </main>
       </div>
     </AuthGuard>

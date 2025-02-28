@@ -46,7 +46,6 @@ export default function AuthGuard({ children, requireAdmin = false }: AuthGuardP
             
             setIsAuthenticated(true);
         } catch (error) {
-            console.error('Invalid token:', error);
             localStorage.removeItem('token');
             router.push('/auth/login');
         } finally {

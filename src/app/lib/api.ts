@@ -30,9 +30,7 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         // Check if error is due to 401 Unauthorized (expired token)
-        if (error.response && error.response.status === 401) {
-            console.log('Session expired. Redirecting to login...');
-            
+        if (error.response && error.response.status === 401) {      
             // Clear authentication data
             localStorage.removeItem('token');
             localStorage.removeItem('role');
@@ -44,8 +42,7 @@ api.interceptors.response.use(
             window.location.href = '/auth/login';
             return Promise.reject(error);
         }
-        
-        console.error('API Error:', error);
+    
         return Promise.reject(error);
     }
 );
@@ -90,6 +87,10 @@ export const admin = {
         const response = await api.get('/admin/transactions');
         return response.data;
     },
+    getTransactionSummary: async () => {
+        const response = await api.get('/admin/transactions-summary');
+        return response.data;
+      }
 };
 
 export const wallet = {
