@@ -15,6 +15,8 @@ interface Transaction {
   amount: number;
   timestamp: string;
   description: string;
+  senderName: string;
+  receiverName: string;
 }
 
 export default function AdminTransactions() {
@@ -149,10 +151,10 @@ export default function AdminTransactions() {
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {transaction.sender ? `${transaction.sender.name} (ID: ${transaction.sender.id})` : '-'}
+                            {transaction.sender ? `${transaction.senderName} (ID: ${transaction.sender.id})` : '-'}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {transaction.receiver ? `${transaction.receiver.name} (ID: ${transaction.receiver.id})` : '-'}
+                            {transaction.receiver ? `${transaction.receiverName} (ID: ${transaction.receiver.id})` : '-'}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             ${transaction.amount.toFixed(2)}
