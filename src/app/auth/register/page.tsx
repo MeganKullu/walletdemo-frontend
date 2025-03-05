@@ -77,7 +77,8 @@ export default function Register() {
 
     setIsLoading(true);
     try {
-      await auth.register(formData.name, formData.email, formData.password);
+      const email = formData.email.toLowerCase();
+      await auth.register(formData.name, email, formData.password);
       toast.success('Registration successful! Please wait for admin approval.');
       router.push('/auth/pending-approval');
     } catch (error: any) {

@@ -31,7 +31,6 @@ export default function TransferForm({ onSuccess }: TransferFormProps) {
                 }
             }
         } catch (error) {
-            console.error('Failed to decode token:', error);
         }
     }, []);
 
@@ -73,8 +72,7 @@ export default function TransferForm({ onSuccess }: TransferFormProps) {
             setForm({ receiverEmail: '', amount: '', pin: '' }); // Reset form
             onSuccess(); // Callback to refresh wallet info
         } catch (error: any) {
-            console.error('Transfer error:', error);
-
+        
             // Extract specific error message from API response
             let errorMessage = 'Transfer failed';
 

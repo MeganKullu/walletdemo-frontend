@@ -20,7 +20,8 @@ export default function Login() {
         setIsLoading(true);
 
         try {
-            const { data, status } = await auth.login(formData.email, formData.password);
+            const email = formData.email.toLowerCase();
+            const { data, status } = await auth.login(email, formData.password);
 
             // Handle pending approval (403 status with approval info)
             if (status === 403 && data.error === "Account pending approval") {

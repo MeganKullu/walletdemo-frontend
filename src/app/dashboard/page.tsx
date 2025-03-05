@@ -8,6 +8,8 @@ import { wallet, user } from '@/app/lib/api';
 import toast from 'react-hot-toast';
 import EmailSummaryButton from '@/app/components/EmailSummaryButton';
 import TransferForm from '@/app/components/TransferForm';
+import WithdrawForm from '@/app/components/WithdrawForm';
+import DepositForm from '@/app/components/DepositForm';
 
 interface WalletInfo {
     balance: number;
@@ -70,10 +72,6 @@ export default function Dashboard() {
 
     // Handle action button clicks
     const handleActionClick = (action: ActionType) => {
-        if (action === 'deposit' || action === 'withdraw') {
-            toast(`${action.charAt(0).toUpperCase() + action.slice(1)} feature coming soon!`);
-            return;
-        }
         setCurrentAction(action);
     };
 
@@ -151,6 +149,21 @@ export default function Dashboard() {
                         </div>
                     )}
 
+                    {currentAction === 'deposit' && (
+                        <div className="mb-6">
+                            <DepositForm onSuccess={fetchWalletInfo} />
+                        </div>
+                    )}
+
+                    {currentAction === 'withdraw' && (
+                        <div className="mb-6">
+                            <WithdrawForm
+                                onSuccess={fetchWalletInfo}
+                                currentBalance={walletInfo?.balance || 0}
+                            />
+                        </div>
+                    )}
+
                     {/* Recent Transactions */}
                     <div className="bg-white shadow rounded-lg">
                         <div className="px-4 py-5 sm:p-6">
@@ -182,7 +195,6 @@ export default function Dashboard() {
                                     <tbody className="bg-white divide-y divide-gray-200">
                                         {walletInfo?.transactions && walletInfo.transactions.length > 0 ? (
                                             walletInfo.transactions.map((transaction) => (
-                                                console.log("transaction",transaction),
                                                 <tr key={transaction.id}>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                         {transaction.type}

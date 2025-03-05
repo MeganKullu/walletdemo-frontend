@@ -18,7 +18,6 @@ export default function EmailSummaryButton() {
       setMessage('');
       
       const response = await user.emailTransactionSummary();
-      console.log("Email Summary Response: ", response); 
       setMessageType('success');
       setMessage('Success! Your transaction summary has been sent to your email address.');
     } catch (error) {

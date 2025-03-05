@@ -86,9 +86,20 @@ export const wallet = {
     },
     transferByEmail: async (receiverEmail: string, amount: number, pin: string) => {
         const response = await api.post('/user/transfer-by-email', { receiverEmail, amount, pin });
-        console.log("transfer response",response);
         return response.data;
-
+    },
+    deposit: async (amount: number) => {
+        const response = await api.post('/user/deposit', { amount });
+        return response.data;
+    },
+    withdraw: async (amount: number, withdrawalMethod: string, accountDetails: any, pin: string) => {
+        const response = await api.post('/user/withdraw', {
+            amount,
+            withdrawalMethod,
+            accountDetails,
+            pin
+        });
+        return response.data;
     },
 };
 
