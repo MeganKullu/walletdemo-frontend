@@ -1,61 +1,54 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
 
-interface AuthGuardProps {
-    children: React.ReactNode;
-    requireAdmin?: boolean;
-}
-
-interface DecodedToken {
-    sub: string;
-    role: string;
-    exp: number;
-}
-
-export default function AuthGuard({ children, requireAdmin = false }: AuthGuardProps) {
+export default function AuthGuard({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        
-        if (!token) {
-            router.push('/auth/login');
-            return;
-        }
-        
-        try {
-            // Decode the token to check expiration and role
-            const decoded = jwtDecode<DecodedToken>(token);
-            const currentTime = Date.now() / 1000;
-            
-            if (decoded.exp < currentTime) {
-                // Token expired
-                localStorage.removeItem('token');
+        const checkAuth = () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
                 router.push('/auth/login');
                 return;
             }
-            
-            // Check if admin role is required
-            if (requireAdmin && decoded.role !== 'ADMIN') {
-                router.push('/dashboard');
-                return;
+
+            try {
+                const decodedToken: any = jwtDecode(token);
+
+                // Check if token is expired
+                if (decodedToken.exp * 1000 < Date.now()) {
+                    localStorage.removeItem('token');
+                    router.push('/auth/login');
+                    return;
+                }
+
+                // Store user name for display purposes
+                localStorage.setItem('userName', decodedToken.name);
+
+                setIsAuthenticated(true);
+            } catch (error) {
+                localStorage.removeItem('token');
+                router.push('/auth/login');
+            } finally {
+                setIsLoading(false);
             }
-            
-            setIsAuthenticated(true);
-        } catch (error) {
-            localStorage.removeItem('token');
-            router.push('/auth/login');
-        } finally {
-            setIsLoading(false);
-        }
-    }, [router, requireAdmin]);
+        };
+
+        checkAuth();
+    }, [router]);
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
     }
 
-    return isAuthenticated ? <>{children}</> : null;
+    if (!isAuthenticated) {
+        return null;
+    }
+
+    return <>{children}</>;
 }

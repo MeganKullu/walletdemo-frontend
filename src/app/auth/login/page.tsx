@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { auth } from '@/app/lib/api';
 import toast from 'react-hot-toast';
 import { jwtDecode } from 'jwt-decode';
+
 export default function Login() {
     const router = useRouter();
     const [formData, setFormData] = useState({
@@ -36,9 +37,7 @@ export default function Login() {
             localStorage.setItem('token', data.token);
             const decodedToken: any = jwtDecode(data.token);
 
-            if (decodedToken.role === 'ADMIN') {
-                router.push('/admin/dashboard');
-            } else {
+            if (decodedToken.role === 'USER') {
                 router.push('/dashboard');
             }
 

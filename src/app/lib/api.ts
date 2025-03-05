@@ -1,25 +1,24 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-const API_BASE_URL = 'https://steady-valery-megan123-feff4840.koyeb.app/api';
-
-
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
 const api = axios.create({
-    baseURL: API_BASE_URL,
+    baseURL: API_URL,
     headers: {
         'Content-Type': 'application/json',
     },
     withCredentials: false
-
 });
 
 // Request interceptor for API calls
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+        if (typeof window !== 'undefined') {
+            const token = localStorage.getItem('token');
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
         }
         return config;
     },
@@ -51,32 +50,27 @@ api.interceptors.response.use(
 );
 
 export const auth = {
-    login: async (email: string, password: string) => {
-        const response = await api.post('/auth/login', { email, password });
-        return { data: response.data, status: response.status };
-    },
     register: async (name: string, email: string, password: string) => {
         const response = await api.post('/auth/register', { name, email, password });
         return { data: response.data, status: response.status };
     },
+    login: async (email: string, password: string) => {
+        const response = await api.post('/auth/login', { email, password });
+        return { data: response.data, status: response.status };
+    }
 };
 
-
 export const user = {
-    setupPin: async (pin: string) => {
-        const response = await api.post('/auth/setup-pin', { pin });
+    checkPinStatus: async () => {
+        const response = await api.get('/users/pin-status');
         return response.data;
     },
-    verifyPin: async (pin: string) => {
-        const response = await api.post('/auth/verify-pin', { pin });
+    setupPin: async (pin: string) => {
+        const response = await api.post('/users/setup-pin', { pin });
         return response.data;
     },
     searchByEmail: async (email: string) => {
         const response = await api.get(`/user/search?email=${encodeURIComponent(email)}`);
-        return response.data;
-    },
-    checkPinStatus: async () => {
-        const response = await api.get('/user/check-pin-status');
         return response.data;
     },
     emailTransactionSummary: async () => {
@@ -103,7 +97,7 @@ export const admin = {
 
 export const wallet = {
     getWalletInfo: async () => {
-        const response = await api.get('/user/wallet-info');
+        const response = await api.get('/wallet');
         return response.data;
     },
     transfer: async (receiverId: number, amount: number, pin: string) => {
@@ -115,11 +109,7 @@ export const wallet = {
         return response.data;
     },
     transferByEmail: async (receiverEmail: string, amount: number, pin: string) => {
-        const response = await api.post('/user/transfer-by-email', {
-            receiverEmail,
-            amount,
-            pin,
-        });
+        const response = await api.post('/wallet/transfer', { receiverEmail, amount, pin });
         return response.data;
     },
 };
