@@ -28,7 +28,7 @@ export default function PinSetupPrompt() {
   };
 
   const handleSetupNow = () => {
-    router.push('/setup-pin');
+    router.push('/auth/setup-pin');
   };
 
   const handleLater = () => {

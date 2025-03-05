@@ -1,7 +1,7 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+const API_URL = 'http://localhost:8085/api';
 
 const api = axios.create({
     baseURL: API_URL,
@@ -28,26 +28,26 @@ api.interceptors.request.use(
 );
 
 // Response interceptor for API calls
-api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        // Check if error is due to 401 Unauthorized (expired token)
-        if (error.response && error.response.status === 401) {
-            // Clear authentication data
-            localStorage.removeItem('token');
-            localStorage.removeItem('role');
+// api.interceptors.response.use(
+//     (response) => response,
+//     (error) => {
+//         // Check if error is due to 401 Unauthorized (expired token)
+//         if (error.response && error.response.status === 401) {
+//             // Clear authentication data
+//             localStorage.removeItem('token');
+//             localStorage.removeItem('role');
 
-            // Show notification
-            toast.error('Your session has expired. Please log in again.');
+//             // Show notification
+//             toast.error('Your session has expired. Please log in again.');
 
-            // Redirect to login page
-            window.location.href = '/auth/login';
-            return Promise.reject(error);
-        }
+//             // Redirect to login page
+//             window.location.href = '/auth/login';
+//             return Promise.reject(error);
+//         }
 
-        return Promise.reject(error);
-    }
-);
+//         return Promise.reject(error);
+//     }
+// );
 
 export const auth = {
     register: async (name: string, email: string, password: string) => {
@@ -62,11 +62,11 @@ export const auth = {
 
 export const user = {
     checkPinStatus: async () => {
-        const response = await api.get('/users/pin-status');
+        const response = await api.get('/user/check-pin-status');
         return response.data;
     },
     setupPin: async (pin: string) => {
-        const response = await api.post('/users/setup-pin', { pin });
+        const response = await api.post('/user/setup-pin', { pin });
         return response.data;
     },
     searchByEmail: async (email: string) => {
@@ -79,38 +79,16 @@ export const user = {
     },
 };
 
-export const admin = {
-    getPendingUsers: () => api.get('/admin/pending-users'),
-    approveUser: async (userId: number) => {
-        const response = await api.put(`/admin/approve/${userId}`);
-        return response.data;
-    },
-    getAllTransactions: async () => {
-        const response = await api.get('/admin/transactions');
-        return response.data;
-    },
-    getTransactionSummary: async () => {
-        const response = await api.get('/admin/transactions-summary');
-        return response.data;
-    }
-};
-
 export const wallet = {
     getWalletInfo: async () => {
-        const response = await api.get('/wallet');
-        return response.data;
-    },
-    transfer: async (receiverId: number, amount: number, pin: string) => {
-        const response = await api.post('/user/transfer', {
-            receiverUserId: receiverId,
-            amount,
-            pin,
-        });
+        const response = await api.get('/user/wallet-info');
         return response.data;
     },
     transferByEmail: async (receiverEmail: string, amount: number, pin: string) => {
-        const response = await api.post('/wallet/transfer', { receiverEmail, amount, pin });
+        const response = await api.post('/user/transfer-by-email', { receiverEmail, amount, pin });
+        console.log("transfer response",response);
         return response.data;
+
     },
 };
 

@@ -7,6 +7,7 @@ import Navigation from '@/app/components/Navigation';
 import { wallet, user } from '@/app/lib/api';
 import toast from 'react-hot-toast';
 import EmailSummaryButton from '@/app/components/EmailSummaryButton';
+import TransferForm from '@/app/components/TransferForm';
 
 interface WalletInfo {
     balance: number;
@@ -19,25 +20,18 @@ interface WalletInfo {
         description: string;
         senderName: string;
         receiverName: string;
+        receiverEmail: string;
     }>;
 }
 
-interface UserSearchResult {
-    id: number;
-    name: string;
-    email: string;
-}
+type ActionType = 'transfer' | 'deposit' | 'withdraw' | null;
 
 export default function Dashboard() {
     const router = useRouter();
     const [walletInfo, setWalletInfo] = useState<WalletInfo | null>(null);
-    const [transferForm, setTransferForm] = useState({
-        receiverEmail: '',
-        amount: '',
-        pin: '',
-    });
     const [isPinSet, setIsPinSet] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [currentAction, setCurrentAction] = useState<ActionType>(null);
 
     useEffect(() => {
         async function initializeDashboard() {
@@ -48,7 +42,7 @@ export default function Dashboard() {
                 if (!response.isPinSet) {
                     // Redirect immediately without rendering dashboard
                     toast.error('You need to set up your PIN first');
-                    router.push('/setup-pin');
+                    router.push('/auth/setup-pin');
                     return;
                 }
 
@@ -74,34 +68,13 @@ export default function Dashboard() {
         }
     };
 
-    const handleTransfer = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (!transferForm.receiverEmail || !transferForm.amount || !transferForm.pin) {
-            toast.error('Please fill in all fields');
+    // Handle action button clicks
+    const handleActionClick = (action: ActionType) => {
+        if (action === 'deposit' || action === 'withdraw') {
+            toast(`${action.charAt(0).toUpperCase() + action.slice(1)} feature coming soon!`);
             return;
         }
-
-        // Basic email validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(transferForm.receiverEmail)) {
-            toast.error('Please enter a valid email address');
-            return;
-        }
-
-        try {
-            await wallet.transferByEmail(
-                transferForm.receiverEmail,
-                parseFloat(transferForm.amount),
-                transferForm.pin
-            );
-
-            toast.success('Transfer successful!');
-            fetchWalletInfo();
-            setTransferForm({ receiverEmail: '', amount: '', pin: '' }); // Reset form
-        } catch (error: any) {
-            toast.error(error.response?.data || 'Transfer failed');
-        }
+        setCurrentAction(action);
     };
 
     if (isLoading) {
@@ -137,88 +110,71 @@ export default function Dashboard() {
                         </div>
                     </div>
 
-                    {/* Transfer Form */}
-                    <div className="bg-white overflow-hidden shadow rounded-lg mb-6">
-                        <div className="px-4 py-5 sm:p-6">
-                            <h3 className="text-lg font-medium text-gray-900 mb-4">Transfer Money</h3>
-                            <form onSubmit={handleTransfer} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">
-                                        Receiver's Email
-                                    </label>
-                                    <input
-                                        type="email"
-                                        required
-                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                        value={transferForm.receiverEmail}
-                                        onChange={(e) => setTransferForm({ ...transferForm, receiverEmail: e.target.value })}
-                                        placeholder="Enter recipient's email"
-                                        autoComplete="off"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">
-                                        Amount
-                                    </label>
-                                    <input
-                                        type="number"
-                                        required
-                                        step="0.01"
-                                        min="0.01"
-                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                        value={transferForm.amount}
-                                        onChange={(e) => setTransferForm({ ...transferForm, amount: e.target.value })}
-                                        placeholder="0.00"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">
-                                        PIN
-                                    </label>
-                                    <input
-                                        type="password"
-                                        required
-                                        maxLength={4}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                        value={transferForm.pin}
-                                        onChange={(e) => setTransferForm({ ...transferForm, pin: e.target.value })}
-                                        placeholder="****"
-                                    />
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                >
-                                    Transfer
-                                </button>
-                            </form>
-                        </div>
+                    {/* Action Buttons */}
+                    <div className="grid grid-cols-3 gap-4 mb-6">
+                        <button
+                            onClick={() => handleActionClick('deposit')}
+                            className="bg-emerald-500 hover:bg-emerald-600 text-white py-3 px-4 rounded-lg flex flex-col items-center justify-center transition duration-150"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            <span>Deposit</span>
+                        </button>
+                        <button
+                            onClick={() => handleActionClick('transfer')}
+                            className={`${currentAction === 'transfer'
+                                ? 'bg-indigo-700'
+                                : 'bg-indigo-600 hover:bg-indigo-700'
+                                } text-white py-3 px-4 rounded-lg flex flex-col items-center justify-center transition duration-150`}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                            </svg>
+                            <span>Transfer</span>
+                        </button>
+                        <button
+                            onClick={() => handleActionClick('withdraw')}
+                            className="bg-rose-500 hover:bg-rose-600 text-white py-3 px-4 rounded-lg flex flex-col items-center justify-center transition duration-150"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                            </svg>
+                            <span>Withdraw</span>
+                        </button>
                     </div>
+
+                    {/* Conditional Action Form */}
+                    {currentAction === 'transfer' && (
+                        <div className="mb-6">
+                            <TransferForm onSuccess={fetchWalletInfo} />
+                        </div>
+                    )}
 
                     {/* Recent Transactions */}
                     <div className="bg-white shadow rounded-lg">
                         <div className="px-4 py-5 sm:p-6">
-                            <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Transactions</h3>
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-medium text-gray-900">Recent Transactions</h3>
+                                <EmailSummaryButton />
+                            </div>
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gray-50">
                                         <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Type
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Amount
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                With
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                To
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Status
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Date
                                             </th>
                                         </tr>
@@ -226,6 +182,7 @@ export default function Dashboard() {
                                     <tbody className="bg-white divide-y divide-gray-200">
                                         {walletInfo?.transactions && walletInfo.transactions.length > 0 ? (
                                             walletInfo.transactions.map((transaction) => (
+                                                console.log("transaction",transaction),
                                                 <tr key={transaction.id}>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                         {transaction.type}
@@ -234,11 +191,7 @@ export default function Dashboard() {
                                                         ${transaction.amount.toFixed(2)}
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        {transaction.type === 'TRANSFER'
-                                                            ? (transaction.senderName === localStorage.getItem('userName')
-                                                                ? transaction.receiverName
-                                                                : transaction.senderName)
-                                                            : '-'}
+                                                        {transaction.type === 'TRANSFER' ? transaction.receiverName : transaction.receiverEmail}
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                                                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${transaction.status === 'SUCCESS'
@@ -265,7 +218,6 @@ export default function Dashboard() {
                             </div>
                         </div>
                     </div>
-                    <EmailSummaryButton />
                 </main>
             </div>
         </AuthGuard>

@@ -28,12 +28,6 @@ export default function Navigation() {
               >
                 Dashboard
               </Link>
-              <Link
-                href="/transactions"
-                className="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300"
-              >
-                Transactions
-              </Link>
             </div>
           </div>
 
