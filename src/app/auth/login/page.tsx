@@ -25,9 +25,7 @@ export default function Login() {
 
             // Handle pending approval (403 status with approval info)
             if (status === 403 && data.error === "Account pending approval") {
-                toast('Your account is pending admin approval. You will be notified when approved.', {
-                    icon: 'ℹ️',
-                });
+                toast.info('Your account is pending admin approval. You will be notified when approved.');
                 router.push('/auth/pending-approval');
                 return;
             }
@@ -48,6 +46,17 @@ export default function Login() {
                 router.push('/dashboard');
             }
         } catch (error: any) {
+            // Special handling for 403 with pending approval message
+            if (error.response && error.response.status === 403) {
+                const data = error.response.data;
+                if (data && data.error === "Account pending approval") {
+                    toast.success('Your account is pending admin approval. You will be notified when approved.');
+                    router.push('/auth/pending-approval');
+                    return;
+                }
+            }
+
+            // General error handling
             toast.error('Login failed. Please check your credentials and try again.');
         } finally {
             setIsLoading(false);

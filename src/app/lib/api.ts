@@ -20,6 +20,8 @@ api.interceptors.request.use(
                 config.headers.Authorization = `Bearer ${token}`;
             }
         }
+
+        config.headers['Access-Control-Request-Method'] = 'GET, POST, PUT, DELETE, OPTIONS';
         return config;
     },
     (error) => {
