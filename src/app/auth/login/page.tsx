@@ -21,43 +21,36 @@ export default function Login() {
 
         try {
             const email = formData.email.toLowerCase();
-            const { data, status } = await auth.login(email, formData.password);
-
-            // Handle pending approval (403 status with approval info)
-            if (status === 403 && data.error === "Account pending approval") {
+            const { data } = await auth.login(email, formData.password);
+            
+            // Store token in localStorage
+            localStorage.setItem('token', data.token);
+            
+            // Decode token to check approval status
+            const decodedToken: any = jwtDecode(data.token);
+            
+            // Check if user is approved based on token claim
+            if (!decodedToken.isApproved) {
                 toast.success('Your account is pending admin approval. You will be notified when approved.');
                 router.push('/auth/pending-approval');
                 return;
             }
 
-            // Handle other errors
-            if (status !== 200) {
-                toast.error(data.error || 'Login failed. Please check your credentials.');
-                return;
-            }
-
-            // Normal login flow for approved users
-            localStorage.setItem('token', data.token);
-            const decodedToken: any = jwtDecode(data.token);
-
+            // User is approved, continue to dashboard
             toast.success('Login successful!');
-
+            
+            // Route based on role (if you have different roles)
             if (decodedToken.role === 'USER') {
-                router.push('/dashboard');
+                router.push('/dashboard'); 
             }
         } catch (error: any) {
-            // Special handling for 403 with pending approval message
-            if (error.response && error.response.status === 403) {
-                const data = error.response.data;
-                if (data && data.error === "Account pending approval") {
-                    toast.success('Your account is pending admin approval. You will be notified when approved.');
-                    router.push('/auth/pending-approval');
-                    return;
-                }
+            // Handle authentication errors
+            if (error.response && error.response.status === 401) {
+                toast.error('Invalid email or password. Please try again.');
+            } else {
+                toast.error('Login failed. Please try again later.');
+                console.error('Login error:', error);
             }
-
-            // General error handling
-            toast.error('Login failed. Please check your credentials and try again.');
         } finally {
             setIsLoading(false);
         }
