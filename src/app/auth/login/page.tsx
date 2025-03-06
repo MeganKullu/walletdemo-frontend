@@ -25,7 +25,7 @@ export default function Login() {
 
             // Handle pending approval (403 status with approval info)
             if (status === 403 && data.error === "Account pending approval") {
-                toast.info('Your account is pending admin approval. You will be notified when approved.');
+                toast.success('Your account is pending admin approval. You will be notified when approved.');
                 router.push('/auth/pending-approval');
                 return;
             }
